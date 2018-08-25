@@ -1,19 +1,22 @@
-import textwrap
-
 from setuptools import setup, Extension
+
+
+def long_description():
+  with open('README.rst') as fp:
+    return fp.read()
 
 
 setup(
   name='p537',
-  version='1.0.2',
-  description=textwrap.dedent("""
-  A tiny platform-specific distribution with a console script.
-
-  This distribution serves as a test-case for https://github.com/pantsbuild/pex/issues/537.
-  """),
-  url = 'https://github.com/jsirois/p537',
-  license = 'Apache License, Version 2.0',
-  classifiers = [
+  version='1.0.3',
+  author="John Sirois",
+  author_email="john.sirois@gmail.com",
+  description='A tiny platform-specific distribution with a console script.',
+  long_description=long_description(),
+  long_description_content_type="text/x-rst",
+  url='https://github.com/jsirois/p537',
+  license='Apache License, Version 2.0',
+  classifiers=[
     'Intended Audience :: Developers',
     'License :: OSI Approved :: Apache Software License',
     'Operating System :: POSIX :: Linux',
