@@ -5,7 +5,7 @@ from setuptools import setup, Extension
 
 setup(
   name='p537',
-  version='1.0.0',
+  version='1.0.1',
   description=textwrap.dedent("""
   A tiny platform-specific distribution with a console script.
 
@@ -21,7 +21,7 @@ setup(
     'Programming Language :: Python :: 3.6',
   ],
   ext_modules=[
-    Extension('p537', sources=['p537module.c'])
+    Extension('p537', sources=['p537module.c']),
   ],
   entry_points={
     'console_scripts': [

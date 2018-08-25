@@ -20,7 +20,7 @@ matrix:
       python: "3.6"
       deploy:
         <<: *deploy
-        distributions: "sdist bdist_wheel"
+        distributions: "sdist bdist_wheel --plat-name manylinux1_x86_64"
  
     - name: "OSX"
       os: osx
