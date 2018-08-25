@@ -4,13 +4,24 @@ install:
 script:
   - tox
 
+deploy: &deploy
+  provider: pypi
+  user: john.sirois
+  password:
+    secure: "Q9cUs+sU/R+AnOsviVlCGxP1f+Jk7dTjCBmt5iuem3fLz4k0t15sQj4MZzpBRTGZrW2VMsSKpbAs4I2NvLjIZ974p9nYNJmrfIoqfLf0Xe0O8trNT8+a5x2Dul3kON5pQvK3VZBFjVWXCax8YblZH1WVHKaHEAE9eN1EvszThp+dej+XyEqVQQJwSG63B7vw0jMfCVWwVsJC6WzGgmRbQIh3Q0iPk/iCjSVR273trcInAkPWmiygyGv7jtGxIw7UoEeclWQHo9omwM28ThLBu/4XNLAfPkq2swx0pf+a3/mye+t2680h6vkl8200n0bM60FCiLbXftD85ZHXk1rEFZH578LTsXc9oaOWjNp0IpZ4QsexTIrDdouo8rWSg7a0k1xrcVo9TWbau6ajSkUfuv+5d/wRkcve2eZDGqAwfG5oorX5BfVH7p/IBPFQPK4rzUdN74MXXziBvNzlp4Be2FliaVAPivtF823BOSshRTnEIhaZ6e0/5h/lnvTRmRrFxl0zVjiDDO0zf9sc8PHda+B+pV4nUAN+F4lWG7OFFtttKeLvVWPfoQ7v11jNTRCQA3CCZEdWVjGnZJxElbPekNKWXKFuWH3zHqgTubedbjsF56+E0ZEoz+UntrQSHERg0SZU2sz8HCRNyXnwXfe5dZ7cXXtCWO+ImO/lu4cOftQ="
+  on:
+    tags: true
+
 matrix:
   include:
     - name: "Linux"
       os: linux
       language: python
       python: "3.6"
-
+      deploy:
+        <<: *deploy
+        distributions: "sdist bdist_wheel"
+ 
     - name: "OSX"
       os: osx
       language: generic
@@ -27,12 +38,7 @@ matrix:
       cache:
         directories:
           - "${PYENV_ROOT}"
+      deploy:
+        <<: *deploy
+        distributions: "bdist_wheel"
  
-deploy:
-  provider: pypi
-  user: john.sirois
-  password:
-    secure: "Q9cUs+sU/R+AnOsviVlCGxP1f+Jk7dTjCBmt5iuem3fLz4k0t15sQj4MZzpBRTGZrW2VMsSKpbAs4I2NvLjIZ974p9nYNJmrfIoqfLf0Xe0O8trNT8+a5x2Dul3kON5pQvK3VZBFjVWXCax8YblZH1WVHKaHEAE9eN1EvszThp+dej+XyEqVQQJwSG63B7vw0jMfCVWwVsJC6WzGgmRbQIh3Q0iPk/iCjSVR273trcInAkPWmiygyGv7jtGxIw7UoEeclWQHo9omwM28ThLBu/4XNLAfPkq2swx0pf+a3/mye+t2680h6vkl8200n0bM60FCiLbXftD85ZHXk1rEFZH578LTsXc9oaOWjNp0IpZ4QsexTIrDdouo8rWSg7a0k1xrcVo9TWbau6ajSkUfuv+5d/wRkcve2eZDGqAwfG5oorX5BfVH7p/IBPFQPK4rzUdN74MXXziBvNzlp4Be2FliaVAPivtF823BOSshRTnEIhaZ6e0/5h/lnvTRmRrFxl0zVjiDDO0zf9sc8PHda+B+pV4nUAN+F4lWG7OFFtttKeLvVWPfoQ7v11jNTRCQA3CCZEdWVjGnZJxElbPekNKWXKFuWH3zHqgTubedbjsF56+E0ZEoz+UntrQSHERg0SZU2sz8HCRNyXnwXfe5dZ7cXXtCWO+ImO/lu4cOftQ="
-  on:
-    tags: true
-    distributions: "bdist_wheel"
