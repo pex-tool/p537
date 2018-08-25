@@ -5,7 +5,7 @@ from setuptools import setup, Extension
 
 setup(
   name='p537',
-  version='1.0.1',
+  version='1.0.2',
   description=textwrap.dedent("""
   A tiny platform-specific distribution with a console script.
 

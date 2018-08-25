@@ -3,7 +3,8 @@
 static PyObject *
 p537_greet(PyObject *self)
 {
-  return Py_BuildValue("s", "Hello World!");
+  PySys_WriteStdout("Hello World!");
+  return Py_BuildValue(""); // None
 }
 
 static PyMethodDef p537methods[] = {
