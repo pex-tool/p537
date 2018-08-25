@@ -1,5 +1,5 @@
-.. image:: https://travis-ci.org/pantsbuild/p537.svg?branch=master
-    :target: https://travis-ci.org/pantsbuild/p537
+.. image:: https://travis-ci.org/jsirois/p537.svg?branch=master
+    :target: https://travis-ci.org/jsirois/p537
 .. image:: https://img.shields.io/pypi/l/p537.svg
     :target: https://pypi.org/project/p537/
 .. image:: https://img.shields.io/pypi/v/p537.svg
