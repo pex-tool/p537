@@ -1,0 +1,66 @@
+name: Release
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: The tag to manually run a deploy for.
+        required: true
+jobs:
+  org-check:
+    name: Check GitHub Organization
+    if: ${{ github.repository_owner == 'jsirois' }}
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Noop
+        run: "true"
+  determine-tag:
+    name: Determine the release tag to operate against.
+    needs: org-check
+    runs-on: ubuntu-20.04
+    outputs:
+      release-tag: ${{ steps.determine-tag.outputs.release-tag }}
+      release-version: ${{ steps.determine-tag.outputs.release-version }}
+    steps:
+      - name: Determine Tag
+        id: determine-tag
+        run: |
+          if [[ -n "${{ github.event.inputs.tag }}" ]]; then
+            RELEASE_TAG=${{ github.event.inputs.tag }}
+          else
+            RELEASE_TAG=${GITHUB_REF#refs/tags/}
+          fi
+          if [[ "${RELEASE_TAG}" =~ ^v[0-9]+.[0-9]+.[0-9]+$ ]]; then
+            echo "::set-output name=release-tag::${RELEASE_TAG}"
+            echo "::set-output name=release-version::${RELEASE_TAG#v}"
+          else
+            echo "::error::Release tag '${RELEASE_TAG}' must match 'v\d+.\d+.\d+'."
+            exit 1
+          fi
+  pypi:
+    name: Publish sdist and wheel to PyPI
+    needs: determine-tag
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-11, windows-2022]
+        python-version: [[3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [3, 11, "0-rc.2"]]
+    environment: Release
+    steps:
+      - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.determine-tag.outputs.release-tag }}
+      - name: Setup Python ${{ join(matrix.python-version, '.') }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: "${{ join(matrix.python-version, '.') }}"
+      - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
+        uses: pantsbuild/actions/run-tox@95209b287c817c78a765962d40ac6cea790fc511
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        with:
+          tox-env: publish -- --skip-existing
