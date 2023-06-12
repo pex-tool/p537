@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Noop
         run: "true"
-  tests-3.6:
+  tests-36:
     name: (${{ matrix.os }}) Python 3.6 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
@@ -38,7 +38,7 @@ jobs:
         uses: pantsbuild/actions/run-tox@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
         with:
           tox-env: py36
-  tests-3.7-3.12:
+  tests-37-312:
     name: (${{ matrix.os }}) Python 3.7 - 3.12 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
