@@ -108,7 +108,9 @@ jobs:
         with:
           path: dist/
       - name: Re-organize distributions for upload
-        run: mv -v dist/*-distributions/* dist/
+        run: |
+          mv -v dist/ubuntu-22.04-${{ needs.determine-tag.outputs.release-tag }}-3.11-distributions/*.tar.gz dist/
+          mv -v dist/*-distributions/*.whl dist/
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
