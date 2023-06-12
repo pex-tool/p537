@@ -12,14 +12,14 @@ jobs:
   org-check:
     name: Check GitHub Organization
     if: ${{ github.repository_owner == 'jsirois' }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Noop
         run: "true"
   determine-tag:
     name: Determine the release tag to operate against.
     needs: org-check
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       release-tag: ${{ steps.determine-tag.outputs.release-tag }}
       release-version: ${{ steps.determine-tag.outputs.release-version }}
@@ -45,22 +45,38 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-11, windows-2022]
-        python-version: [[3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [3, 11, "0-rc.2"]]
+        os: [ubuntu-22.04, macos-12, windows-2022]
+        python-version: [[3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12, "0-beta.2"]]
+        exclude:
+          - os: windows-2022
+            python-version: [3, 6]
     environment: Release
+    permissions:
+      id-token: write
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v3
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
+      - name: Setup Python 3.6
+        if: ${{ join(matrix.python-version, '.')  == '3.6' }}
+        uses: gabrielfalcao/pyenv-action@v14
+        env:
+          ENSUREPIP: no
+        with:
+          default: "3.6.15"
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
+        if: ${{ join(matrix.python-version, '.')  != '3.6' }}
         uses: actions/setup-python@v4
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
-      - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
+      - name: Package ${{ needs.determine-tag.outputs.release-tag }}
         uses: pantsbuild/actions/run-tox@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         with:
-          tox-env: publish -- --skip-existing
+          tox-env: package
+      - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print-hash: true
+          verbose: true
+
