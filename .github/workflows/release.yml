@@ -116,6 +116,7 @@ jobs:
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
+          skip-existing: true
           print-hash: true
           verbose: true
 
