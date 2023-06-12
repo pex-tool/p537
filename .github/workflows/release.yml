@@ -107,6 +107,8 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: dist/
+      - name: Re-organize distributions for upload
+        run: mv -v dist/*-distributions/* dist/
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
