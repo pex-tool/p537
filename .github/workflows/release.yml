@@ -56,7 +56,7 @@ jobs:
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Expose Pythons
-        uses: pantsbuild/actions/expose-pythons@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
+        uses: https://github.com/jsirois/actions/commit/aa2cda5cd755f815574943503c27e50021cb5368
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
         if: ${{ join(matrix.python-version, '.')  != '3.6' }}
         uses: actions/setup-python@v4
