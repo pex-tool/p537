@@ -31,6 +31,8 @@ jobs:
       - name: Setup Python 3.6
         if: ${{ matrix.os != 'windows-2022' }}
         uses: gabrielfalcao/pyenv-action@v11
+        env:
+          ENSUREPIP: no
         with:
           default: "3.6.15"
       - name: Setup Python 3.7
