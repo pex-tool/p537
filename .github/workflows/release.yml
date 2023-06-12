@@ -96,6 +96,7 @@ jobs:
   pypi:
     name: Publish sdist and wheel to PyPI
     needs:
+      - determine-tag
       - package-36-dists
       - package-37-312-dists
     runs-on: ubuntu-22.04
