@@ -52,7 +52,6 @@ jobs:
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python 3.6
-        if: ${{ join(matrix.python-version, '.')  == '3.6' }}
         uses: gabrielfalcao/pyenv-action@v14
         env:
           ENSUREPIP: no
