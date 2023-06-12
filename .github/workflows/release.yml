@@ -39,20 +39,13 @@ jobs:
             echo "::error::Release tag '${RELEASE_TAG}' must match 'v\d+.\d+.\d+'."
             exit 1
           fi
-  pypi:
-    name: Publish sdist and wheel to PyPI
+  package-36-dists:
+    name: Package Distributions for Python 3.6
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12, windows-2022]
-        python-version: [[3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12, "0-beta.2"]]
-        exclude:
-          - os: windows-2022
-            python-version: [3, 6]
-    environment: Release
-    permissions:
-      id-token: write
+        os: [ubuntu-22.04, macos-12]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v3
@@ -65,8 +58,29 @@ jobs:
           ENSUREPIP: no
         with:
           default: "3.6.15"
+          command: pip install -U tox
+      - name: Package ${{ needs.determine-tag.outputs.release-tag }}
+        run: tox -e package
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-3.6-distributions"
+          path: dist/
+          retention-days: 1
+  package-37-312-dists:
+    name: Package Distributions for Python 3.7 - 3.12
+    needs: determine-tag
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, macos-12, windows-2022]
+        python-version: [[3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12, "0-beta.2"]]
+    steps:
+      - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
-        if: ${{ join(matrix.python-version, '.')  != '3.6' }}
         uses: actions/setup-python@v4
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
@@ -74,6 +88,24 @@ jobs:
         uses: pantsbuild/actions/run-tox@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
         with:
           tox-env: package
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-${{ join(matrix.python-version, '.') }}-distributions"
+          path: dist/
+          retention-days: 1
+  pypi:
+    name: Publish sdist and wheel to PyPI
+    needs:
+      - package-36-dists
+      - package-37-312-dists
+    runs-on: ubuntu-22.04
+    environment: Release
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all packaged distributions
+        uses: actions/download-artifact@v3
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
