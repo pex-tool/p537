@@ -39,10 +39,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.12.0-beta.2"
-      - name: Setup Python 3.7
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.7"
       - name: Setup Python 3.8
         uses: actions/setup-python@v4
         with:
@@ -59,6 +55,10 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
+      - name: Setup Python 3.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.7"
       - name: Run Unit Tests
         uses: pantsbuild/actions/run-tox@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
         if: ${{ matrix.os != 'windows-2022' }}
