@@ -105,6 +105,8 @@ jobs:
     steps:
       - name: Download all packaged distributions
         uses: actions/download-artifact@v3
+        with:
+          path: dist/
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
