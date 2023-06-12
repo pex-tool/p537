@@ -112,6 +112,7 @@ jobs:
         run: |
           mv -v dist/ubuntu-22.04-${{ needs.determine-tag.outputs.release-tag }}-3.11-distributions/*.tar.gz dist/
           mv -v dist/*-distributions/*.whl dist/
+          rm -rf dist/*-distributions
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
