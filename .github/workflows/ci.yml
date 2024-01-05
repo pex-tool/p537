@@ -27,9 +27,9 @@ jobs:
         os: [ubuntu-22.04, macos-12]
     steps:
       - name: Checkout p537
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python 3.6
-        uses: gabrielfalcao/pyenv-action@v14
+        uses: gabrielfalcao/pyenv-action@v18
         env:
           ENSUREPIP: no
         with:
@@ -37,8 +37,8 @@ jobs:
           command: pip install -U tox
       - name: Run Unit Tests
         run: tox -e py36
-  tests-37-312:
-    name: (${{ matrix.os }}) Python 3.7 - 3.12 Tests
+  tests-37-313:
+    name: (${{ matrix.os }}) Python 3.7 - 3.13 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
@@ -46,40 +46,44 @@ jobs:
         os: [ubuntu-22.04, macos-12, windows-2022]
     steps:
       - name: Checkout p537
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python 3.7
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.7"
       - name: Setup Python 3.8
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
       - name: Setup Python 3.9
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
       - name: Setup Python 3.10
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
       - name: Setup Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - name: Setup Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.12.0-beta.2"
+          python-version: "3.12"
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.0-alpha.2"
       - name: Run Unit Tests
-        uses: pantsbuild/actions/run-tox@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
+        uses: pantsbuild/actions/run-tox@b16b9cf47cd566acfe217b1dafc5b452e27e6fd7
         with:
-          tox-env: py37,py38,py39,py310,py311,py312
+          tox-env: py37,py38,py39,py310,py311,py312,py313
   final-status:
     name: Gather Final Status
     needs:
       - tests-36
-      - tests-37-312
+      - tests-37-313
     runs-on: ubuntu-22.04
     steps:
       - name: Check Non-Success
