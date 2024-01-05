@@ -66,7 +66,7 @@ jobs:
           name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-3.6-distributions"
           path: dist/
           retention-days: 1
-  package-37-312-dists:
+  package-37-313-dists:
     name: Package Distributions for Python 3.7 - 3.13
     needs: determine-tag
     runs-on: ${{ matrix.os }}
