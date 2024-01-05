@@ -48,11 +48,11 @@ jobs:
         os: [ubuntu-22.04, macos-12]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python 3.6
-        uses: gabrielfalcao/pyenv-action@v14
+        uses: gabrielfalcao/pyenv-action@v18
         env:
           ENSUREPIP: no
         with:
@@ -61,34 +61,34 @@ jobs:
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
         run: tox -e package
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-3.6-distributions"
           path: dist/
           retention-days: 1
   package-37-312-dists:
-    name: Package Distributions for Python 3.7 - 3.12
+    name: Package Distributions for Python 3.7 - 3.13
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-22.04, macos-12, windows-2022]
-        python-version: [[3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12, "0-beta.2"]]
+        python-version: [[3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12], [3, 13, "0-alpha.2"]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
-        uses: pantsbuild/actions/run-tox@e63d2d0e3c339bdffbe5e51e7c39550e3bc527bb
+        uses: pantsbuild/actions/run-tox@b16b9cf47cd566acfe217b1dafc5b452e27e6fd7
         with:
           tox-env: package
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-${{ join(matrix.python-version, '.') }}-distributions"
           path: dist/
@@ -98,19 +98,19 @@ jobs:
     needs:
       - determine-tag
       - package-36-dists
-      - package-37-312-dists
+      - package-37-313-dists
     runs-on: ubuntu-22.04
     environment: Release
     permissions:
       id-token: write
     steps:
       - name: Download all packaged distributions
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: dist/
       - name: Re-organize distributions for upload
         run: |
-          mv -v dist/ubuntu-22.04-${{ needs.determine-tag.outputs.release-tag }}-3.11-distributions/*.tar.gz dist/
+          mv -v dist/ubuntu-22.04-${{ needs.determine-tag.outputs.release-tag }}-3.12-distributions/*.tar.gz dist/
           mv -v dist/*-distributions/*.whl dist/
           rm -rf dist/*-distributions
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
