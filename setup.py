@@ -14,7 +14,7 @@ setup(
   description='A tiny platform-specific distribution with a console script.',
   long_description=long_description(),
   long_description_content_type="text/x-rst",
-  url='https://github.com/jsirois/p537',
+  url='https://github.com/pex-tool/p537',
   license='Apache License, Version 2.0',
   classifiers=[
     'Intended Audience :: Developers',
