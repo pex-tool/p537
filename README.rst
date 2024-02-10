@@ -12,5 +12,5 @@
 A tiny platform-specific distribution with a console script.
 
 This distribution serves as a test-case for
-`PEX Issue #537 <https://github.com/pantsbuild/pex/issues/537>`_.
+`PEX Issue #537 <https://github.com/pex-tool/pex/issues/537>`_.
 
