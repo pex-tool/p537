@@ -11,7 +11,7 @@ on:
 jobs:
   org-check:
     name: Check GitHub Organization
-    if: ${{ github.repository_owner == 'jsirois' }}
+    if: ${{ github.repository_owner == 'pex-tool' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Noop
