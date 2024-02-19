@@ -1,5 +1,5 @@
-.. image:: https://github.com/pex-tool/p537/workflows/CI/badge.svg?branch=master
-    :target: https://github.com/pex-tool/p537/actions?query=branch%3Amaster+workflow%3ACI
+.. image:: https://github.com/pex-tool/p537/workflows/CI/badge.svg?branch=main
+    :target: https://github.com/pex-tool/p537/actions?query=branch%3Amain+workflow%3ACI
 .. image:: https://img.shields.io/pypi/l/p537.svg
     :target: https://pypi.org/project/p537/
 .. image:: https://img.shields.io/pypi/v/p537.svg
