@@ -14,49 +14,42 @@ jobs:
   org-check:
     name: Check GitHub Organization
     if: github.repository_owner == 'pex-tool'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Noop
         run: "true"
-  tests-36:
-    name: (${{ matrix.os }}) Python 3.6 Tests
+  tests-36-38:
+    name: (${{ matrix.os }}) Python ${{ matrix.python-version[0] }}${{ matrix.python-version[1] }} Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12]
+        os: [ubuntu-24.04, macos-13]
+        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18]]
     steps:
       - name: Checkout p537
         uses: actions/checkout@v4
-      - name: Setup Python 3.6
+      - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
         # Upgrade node16 -> node20: Out for review here:
         #   https://github.com/gabrielfalcao/pyenv-action/pull/444
         uses: pex-tool/pyenv-action@baec18679698d2f80064cc04eb9ad0c8dc5ca8f8
         env:
           ENSUREPIP: no
         with:
-          default: "3.6.15"
+          default: "${{ join(matrix.python-version, '.') }}"
           command: pip install -U tox
       - name: Run Unit Tests
-        run: tox -e py36
-  tests-37-313:
-    name: (${{ matrix.os }}) Python 3.7 - 3.13 Tests
+        run: tox -e py${{ matrix.python-version[0] }}${{ matrix.python-version[1] }}
+  tests-39-314:
+    name: (${{ matrix.os }}) Python 3.9 - 3.14 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12, windows-2022]
+        os: [ubuntu-24.04, macos-13, windows-2022]
     steps:
       - name: Checkout p537
         uses: actions/checkout@v4
-      - name: Setup Python 3.7
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.7"
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.8"
       - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
@@ -76,17 +69,21 @@ jobs:
       - name: Setup Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13.0-alpha.2"
+          python-version: "3.13"
+      - name: Setup Python 3.14
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14.0-alpha.1"
       - name: Run Unit Tests
         uses: pantsbuild/actions/run-tox@b16b9cf47cd566acfe217b1dafc5b452e27e6fd7
         with:
-          tox-env: py37,py38,py39,py310,py311,py312,py313
+          tox-env: py39,py310,py311,py312,py313,py314
   final-status:
     name: Gather Final Status
     needs:
-      - tests-36
-      - tests-37-313
-    runs-on: ubuntu-22.04
+      - tests-36-38
+      - tests-39-314
+    runs-on: ubuntu-24.04
     steps:
       - name: Check Non-Success
         if: |
