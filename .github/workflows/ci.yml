@@ -19,7 +19,7 @@ jobs:
       - name: Noop
         run: "true"
   tests-36-38:
-    name: (${{ matrix.os }}) Python 3.6 - 3.8 Tests
+    name: (${{ matrix.os }}) Python ${{ matrix.python-version[0] }}${{ matrix.python-version[1] }} Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
@@ -77,7 +77,7 @@ jobs:
       - name: Run Unit Tests
         uses: pantsbuild/actions/run-tox@b16b9cf47cd566acfe217b1dafc5b452e27e6fd7
         with:
-          tox-env: py37,py38,py39,py310,py311,py312,py313,py314
+          tox-env: py39,py310,py311,py312,py313,py314
   final-status:
     name: Gather Final Status
     needs:
