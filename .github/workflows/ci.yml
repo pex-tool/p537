@@ -19,7 +19,7 @@ jobs:
       - name: Noop
         run: "true"
   tests-36-38:
-    name: (${{ matrix.os }}) Python ${{ matrix.python-version[0] }}${{ matrix.python-version[1] }} Tests
+    name: (${{ matrix.os }}) Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }} Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:

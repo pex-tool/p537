@@ -40,7 +40,7 @@ jobs:
             exit 1
           fi
   package-36-38-dists:
-    name: Package Distributions for Python 3.6 - 3.8
+    name: ${{ matrix.os }} Package for Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
@@ -70,7 +70,7 @@ jobs:
           path: dist/
           retention-days: 1
   package-39-314-dists:
-    name: Package Distributions for Python ${{ matrix.python-version[0] }}${{ matrix.python-version[1] }}
+    name: ${{ matrix.os }} Package for Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
