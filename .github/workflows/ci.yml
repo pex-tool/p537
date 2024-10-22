@@ -18,29 +18,30 @@ jobs:
     steps:
       - name: Noop
         run: "true"
-  tests-36:
-    name: (${{ matrix.os }}) Python 3.6 Tests
+  tests-36-38:
+    name: (${{ matrix.os }}) Python 3.6 - 3.8 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, macos-13]
+        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18]]
     steps:
       - name: Checkout p537
         uses: actions/checkout@v4
-      - name: Setup Python 3.6
+      - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
         # Upgrade node16 -> node20: Out for review here:
         #   https://github.com/gabrielfalcao/pyenv-action/pull/444
         uses: pex-tool/pyenv-action@baec18679698d2f80064cc04eb9ad0c8dc5ca8f8
         env:
           ENSUREPIP: no
         with:
-          default: "3.6.15"
+          default: "${{ join(matrix.python-version, '.') }}"
           command: pip install -U tox
       - name: Run Unit Tests
-        run: tox -e py36
-  tests-37-314:
-    name: (${{ matrix.os }}) Python 3.7 - 3.14 Tests
+        run: tox -e py${{ matrix.python-version[0] }}${{ matrix.python-version[1] }}
+  tests-39-314:
+    name: (${{ matrix.os }}) Python 3.9 - 3.14 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
@@ -49,14 +50,6 @@ jobs:
     steps:
       - name: Checkout p537
         uses: actions/checkout@v4
-      - name: Setup Python 3.7
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.7"
-      - name: Setup Python 3.8
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.8"
       - name: Setup Python 3.9
         uses: actions/setup-python@v5
         with:
@@ -88,8 +81,8 @@ jobs:
   final-status:
     name: Gather Final Status
     needs:
-      - tests-36
-      - tests-37-314
+      - tests-36-38
+      - tests-39-314
     runs-on: ubuntu-24.04
     steps:
       - name: Check Non-Success

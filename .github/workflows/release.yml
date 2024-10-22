@@ -39,41 +39,44 @@ jobs:
             echo "::error::Release tag '${RELEASE_TAG}' must match 'v\d+.\d+.\d+'."
             exit 1
           fi
-  package-36-dists:
-    name: Package Distributions for Python 3.6
+  package-36-38-dists:
+    name: Package Distributions for Python 3.6 - 3.8
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, macos-13]
+        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
-      - name: Setup Python 3.6
-        uses: gabrielfalcao/pyenv-action@v18
+      - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
+        # Upgrade node16 -> node20: Out for review here:
+        #   https://github.com/gabrielfalcao/pyenv-action/pull/444
+        uses: pex-tool/pyenv-action@baec18679698d2f80064cc04eb9ad0c8dc5ca8f8
         env:
           ENSUREPIP: no
         with:
-          default: "3.6.15"
+          default: "${{ join(matrix.python-version, '.') }}"
           command: pip install -U tox
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
         run: tox -e package
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-3.6-distributions"
+          name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-${{ join(matrix.python-version, '.') }}-distributions"
           path: dist/
           retention-days: 1
-  package-37-314-dists:
-    name: Package Distributions for Python 3.7 - 3.14
+  package-39-314-dists:
+    name: Package Distributions for Python 3.9 - 3.14
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, macos-13, windows-2022]
-        python-version: [[3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14, "0-alpha.1"]]
+        python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14, "0-alpha.1"]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v4
@@ -97,8 +100,8 @@ jobs:
     name: Publish sdist and wheel to PyPI
     needs:
       - determine-tag
-      - package-36-dists
-      - package-37-314-dists
+      - package-36-38-dists
+      - package-39-314-dists
     runs-on: ubuntu-24.04
     environment: Release
     permissions:
