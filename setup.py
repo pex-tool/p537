@@ -8,7 +8,7 @@ def long_description():
 
 setup(
   name='p537',
-  version='1.0.7',
+  version='1.0.8',
   author="John Sirois",
   author_email="john.sirois@gmail.com",
   description='A tiny platform-specific distribution with a console script.',
@@ -30,8 +30,9 @@ setup(
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
   ],
-  python_requires=">=3.6,<3.14",
+  python_requires=">=3.6,<3.15",
   ext_modules=[
     Extension('p537', sources=['p537module.c']),
   ],

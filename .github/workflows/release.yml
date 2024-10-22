@@ -12,14 +12,14 @@ jobs:
   org-check:
     name: Check GitHub Organization
     if: ${{ github.repository_owner == 'pex-tool' }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Noop
         run: "true"
   determine-tag:
     name: Determine the release tag to operate against.
     needs: org-check
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       release-tag: ${{ steps.determine-tag.outputs.release-tag }}
       release-version: ${{ steps.determine-tag.outputs.release-version }}
@@ -45,7 +45,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12]
+        os: [ubuntu-24.04, macos-13]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v4
@@ -66,14 +66,14 @@ jobs:
           name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-3.6-distributions"
           path: dist/
           retention-days: 1
-  package-37-313-dists:
-    name: Package Distributions for Python 3.7 - 3.13
+  package-37-314-dists:
+    name: Package Distributions for Python 3.7 - 3.14
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, macos-12, windows-2022]
-        python-version: [[3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12], [3, 13, "0-alpha.2"]]
+        os: [ubuntu-24.04, macos-13, windows-2022]
+        python-version: [[3, 7], [3, 8], [3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14, "0-alpha.1"]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v4
@@ -98,8 +98,8 @@ jobs:
     needs:
       - determine-tag
       - package-36-dists
-      - package-37-313-dists
-    runs-on: ubuntu-22.04
+      - package-37-314-dists
+    runs-on: ubuntu-24.04
     environment: Release
     permissions:
       id-token: write
@@ -110,7 +110,7 @@ jobs:
           path: dist/
       - name: Re-organize distributions for upload
         run: |
-          mv -v dist/ubuntu-22.04-${{ needs.determine-tag.outputs.release-tag }}-3.12-distributions/*.tar.gz dist/
+          mv -v dist/ubuntu-24.04-${{ needs.determine-tag.outputs.release-tag }}-3.13-distributions/*.tar.gz dist/
           mv -v dist/*-distributions/*.whl dist/
           rm -rf dist/*-distributions
       - name: Publish p537 ${{ needs.determine-tag.outputs.release-tag }}
