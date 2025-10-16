@@ -24,7 +24,6 @@ def repair(wheel: str) -> None:
             [
                 docker,
                 "run",
-                "-it",
                 "-u",
                 f"{os.getuid()}:{os.getgid()}",
                 "-v",
