@@ -17,7 +17,27 @@ def package() -> str:
 
 
 def repair(wheel: str) -> None:
-    subprocess.run([sys.executable, "-m", "auditwheel", "repair", "-w", "dist", wheel], check=True)
+    auditwheel_cmd = ["auditwheel", "repair", "-w", "dist", wheel]
+    docker = shutil.which("docker")
+    if docker:
+        subprocess.run(
+            [
+                docker,
+                "run",
+                "-it",
+                "-u",
+                f"{os.getuid()}:{os.getgid()}",
+                "-v",
+                f"{os.getcwd()}:/io",
+                "-w",
+                "/io",
+                "quay.io/pypa/manylinux1_x86_64",
+                *auditwheel_cmd
+            ],
+            check=True
+        )
+    else:
+        subprocess.run([sys.executable, "-m", *auditwheel_cmd], check=True)
     os.unlink(wheel)
 
 
