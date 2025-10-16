@@ -49,7 +49,7 @@ jobs:
         python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
@@ -69,25 +69,25 @@ jobs:
           name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-${{ join(matrix.python-version, '.') }}-distributions"
           path: dist/
           retention-days: 1
-  package-39-314-dists:
+  package-39-315-dists:
     name: ${{ matrix.os }} Package for Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, macos-13, windows-2022]
-        python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14, "0-alpha.1"]]
+        python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14], [3, 15, "0-alpha.1"]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
-        uses: pantsbuild/actions/run-tox@b16b9cf47cd566acfe217b1dafc5b452e27e6fd7
+        uses: pex-tool/actions/run-tox@7d8530c74d2e3ca4640d1ed9192b6e2b8c4f5f7b
         with:
           tox-env: package
       - name: Upload Artifact
@@ -101,14 +101,14 @@ jobs:
     needs:
       - determine-tag
       - package-36-38-dists
-      - package-39-314-dists
+      - package-39-315-dists
     runs-on: ubuntu-24.04
     environment: Release
     permissions:
       id-token: write
     steps:
       - name: Download all packaged distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: dist/
       - name: Re-organize distributions for upload
