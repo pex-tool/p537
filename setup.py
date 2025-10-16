@@ -8,7 +8,7 @@ def long_description():
 
 setup(
   name='p537',
-  version='1.0.8',
+  version='1.0.9',
   author="John Sirois",
   author_email="john.sirois@gmail.com",
   description='A tiny platform-specific distribution with a console script.',
