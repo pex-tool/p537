@@ -41,7 +41,7 @@ jobs:
       - name: Run Unit Tests
         run: tox -e py${{ matrix.python-version[0] }}${{ matrix.python-version[1] }}
   tests-39-315:
-    name: (${{ matrix.os }}) Python 3.9 - 3.14 Tests
+    name: (${{ matrix.os }}) Python 3.9 - 3.15 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
