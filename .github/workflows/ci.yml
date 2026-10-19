@@ -30,9 +30,8 @@ jobs:
       - name: Checkout p537
         uses: actions/checkout@v5
       - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
-        # Upgrade node16 -> node20: Out for review here:
-        #   https://github.com/gabrielfalcao/pyenv-action/pull/444
-        uses: pex-tool/pyenv-action@baec18679698d2f80064cc04eb9ad0c8dc5ca8f8
+        # Upgrades pyenv to 2.8.10 to pick up 3.16.0a1.
+        uses: pex-tool/pyenv-action@dd5f104be647704ba0eed246cbf0928becf39bb9
         env:
           ENSUREPIP: no
         with:
