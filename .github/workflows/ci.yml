@@ -28,41 +28,55 @@ jobs:
         python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18], [3, 16, "0a1"]]
     steps:
       - name: Checkout p537
-        uses: actions/checkout@v5
-      - name: Install Python Build Requirements
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        uses: actions/checkout@v7.0.1
+      - name: Install Python Build Deps
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           sudo apt update
-          DEBIAN_FRONTEND=noninteractive sudo apt install \
-            --yes \
-            --no-install-recommends \
-                build-essential \
-                curl \
-                git \
-                libbz2-dev \
-                libffi-dev \
-                liblzma-dev \
-                libncursesw5-dev \
-                libreadline-dev \
-                libsqlite3-dev \
-                libssl-dev \
-                libxml2-dev \
-                libxmlsec1-dev \
-                libzstd-dev \
-                make \
-                tk-dev \
-                xz-utils \
-                zlib1g-dev
-      - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
-        # Upgrades pyenv to 2.8.10 to pick up 3.16.0a1.
-        uses: pex-tool/pyenv-action@dcccfcc2bb18b008eca1ee92bbb05425e7126ead
-        env:
-          ENSUREPIP: no
+          DEBIAN_FRONTEND=noninteractive sudo apt install -y \
+            build-essential \
+            curl \
+            git \
+            libbz2-dev \
+            libffi-dev \
+            liblzma-dev \
+            libncursesw5-dev \
+            libreadline-dev \
+            libsqlite3-dev \
+            libssl-dev \
+            libxml2-dev \
+            libxmlsec1-dev \
+            libzstd-dev \
+            make \
+            tk-dev \
+            xz-utils \
+            zlib1g-dev
+      - name: Install Pyenv
+        run: |
+          cd "${RUNNER_TOOL_CACHE}"
+          git clone https://github.com/pyenv/pyenv
+          (
+            cd pyenv
+            src/configure
+            make -C src
+          )
+          export PYENV_ROOT="$PWD/pyenv"
+          echo "PYENV_ROOT=${PYENV_ROOT}" >> "${GITHUB_ENV}"
+          echo "${PYENV_ROOT}/bin" >> "${GITHUB_PATH}"
+      - name: Setup Python ${{ join(matrix.python-version, '.') }}
+        run: |
+          pyenv install ${{ join(matrix.python-version, '.') }}
+          echo "${PYENV_ROOT}/versions/${{ join(matrix.python-version, '.') }}/bin" >> "${GITHUB_PATH}"
+      - name: Setup Tox Python
+        uses: actions/setup-python@v7.0.0
         with:
-          default: "${{ join(matrix.python-version, '.') }}"
-          command: pip install -U tox
+          python-version: 3.11
       - name: Run Unit Tests
-        run: tox -e py${{ matrix.python-version[0] }}${{ matrix.python-version[1] }}
+        run: |
+          python3.11 -V
+          python3.11 -mpip install -U pip
+          python3.11 -mpip install -U tox
+          python3.11 -mtox -e py${{ matrix.python-version[0] }}${{ matrix.python-version[1] }} -- -vvs
   tests-39-315:
     name: (${{ matrix.os }}) Python 3.9 - 3.15 Tests
     needs: org-check
@@ -72,37 +86,37 @@ jobs:
         os: [ubuntu-24.04, macos-15, windows-2025]
     steps:
       - name: Checkout p537
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
       - name: Setup Python 3.9
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.9"
       - name: Setup Python 3.10
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.10"
       - name: Setup Python 3.11
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.11"
       - name: Setup Python 3.12
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.12"
       - name: Setup Python 3.13
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.13"
       - name: Setup Python 3.14
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.14"
       - name: Setup Python 3.15
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "3.15"
       - name: Run Unit Tests
-        uses: pex-tool/actions/run-tox@7d8530c74d2e3ca4640d1ed9192b6e2b8c4f5f7b
+        uses: pex-tool/actions/run-tox@main
         with:
           tox-env: py39,py310,py311,py312,py313,py314,py315
   final-status:

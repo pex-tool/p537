@@ -49,43 +49,57 @@ jobs:
         python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18], [3, 16, "0a1"]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
-      - name: Install Python Build Requirements
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+      - name: Install Python Build Deps
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           sudo apt update
-          DEBIAN_FRONTEND=noninteractive sudo apt install \
-            --yes \
-            --no-install-recommends \
-                build-essential \
-                curl \
-                git \
-                libbz2-dev \
-                libffi-dev \
-                liblzma-dev \
-                libncursesw5-dev \
-                libreadline-dev \
-                libsqlite3-dev \
-                libssl-dev \
-                libxml2-dev \
-                libxmlsec1-dev \
-                libzstd-dev \
-                make \
-                tk-dev \
-                xz-utils \
-                zlib1g-dev
-      - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
-        # Upgrades pyenv to 2.8.10 to pick up 3.16.0a1.
-        uses: pex-tool/pyenv-action@dcccfcc2bb18b008eca1ee92bbb05425e7126ead
-        env:
-          ENSUREPIP: no
+          DEBIAN_FRONTEND=noninteractive sudo apt install -y \
+            build-essential \
+            curl \
+            git \
+            libbz2-dev \
+            libffi-dev \
+            liblzma-dev \
+            libncursesw5-dev \
+            libreadline-dev \
+            libsqlite3-dev \
+            libssl-dev \
+            libxml2-dev \
+            libxmlsec1-dev \
+            libzstd-dev \
+            make \
+            tk-dev \
+            xz-utils \
+            zlib1g-dev
+      - name: Install Pyenv
+        run: |
+          cd "${RUNNER_TOOL_CACHE}"
+          git clone https://github.com/pyenv/pyenv
+          (
+            cd pyenv
+            src/configure
+            make -C src
+          )
+          export PYENV_ROOT="$PWD/pyenv"
+          echo "PYENV_ROOT=${PYENV_ROOT}" >> "${GITHUB_ENV}"
+          echo "${PYENV_ROOT}/bin" >> "${GITHUB_PATH}"
+      - name: Setup Python ${{ join(matrix.python-version, '.') }}
+        run: |
+          pyenv install ${{ join(matrix.python-version, '.') }}
+          echo "${PYENV_ROOT}/versions/${{ join(matrix.python-version, '.') }}/bin" >> "${GITHUB_PATH}"
+      - name: Setup Tox Python
+        uses: actions/setup-python@v7.0.0
         with:
-          default: "${{ join(matrix.python-version, '.') }}"
-          command: pip install -U tox
+          python-version: 3.11
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
-        run: tox -e package
+        run: |
+          python3.11 -V
+          python3.11 -mpip install -U pip
+          python3.11 -mpip install -U tox
+          python3.11 -mtox -e package
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -102,11 +116,11 @@ jobs:
         python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14], [3, 15]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
