@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v5
       - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
         # Upgrades pyenv to 2.8.10 to pick up 3.16.0a1.
-        uses: pex-tool/pyenv-action@4742a5b7cb14532dbc845a6892035252f2e8b174
+        uses: pex-tool/pyenv-action@dcccfcc2bb18b008eca1ee92bbb05425e7126ead
         env:
           ENSUREPIP: no
         with:
