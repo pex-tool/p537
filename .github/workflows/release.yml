@@ -54,7 +54,7 @@ jobs:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
         # Upgrades pyenv to 2.8.10 to pick up 3.16.0a1.
-        uses: pex-tool/pyenv-action@dd5f104be647704ba0eed246cbf0928becf39bb9
+        uses: pex-tool/pyenv-action@4742a5b7cb14532dbc845a6892035252f2e8b174
         env:
           ENSUREPIP: no
         with:
