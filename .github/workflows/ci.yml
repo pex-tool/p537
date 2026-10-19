@@ -65,7 +65,7 @@ jobs:
             --output-format json 2>/dev/null | \
               jq -r '.[] | .path' | \
               grep uv-pythons/ | \
-              xargs dirname | whil read entry; do
+              xargs dirname | while read entry; do
                 echo "$(realpath "${entry}")" >> "${GITHUB_PATH}"
               done
       - name: Run Unit Tests
