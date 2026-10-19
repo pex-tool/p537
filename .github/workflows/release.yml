@@ -99,6 +99,8 @@ jobs:
               done
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
         uses: pex-tool/actions/run-tox@7d8530c74d2e3ca4640d1ed9192b6e2b8c4f5f7b
+        env:
+          UV_BREAK_SYSTEM_PACKAGES: true
         with:
           tox-env: package
       - name: Upload Artifact
