@@ -39,30 +39,67 @@ jobs:
             echo "::error::Release tag '${RELEASE_TAG}' must match 'v\d+.\d+.\d+'."
             exit 1
           fi
-  package-36-38-dists:
+  package-36-38-and-316-dists:
     name: ${{ matrix.os }} Package for Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-13]
-        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18]]
+        os: [ubuntu-24.04, macos-15]
+        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18], [3, 16, "0a1"]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
-      - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
-        # Upgrade node16 -> node20: Out for review here:
-        #   https://github.com/gabrielfalcao/pyenv-action/pull/444
-        uses: pex-tool/pyenv-action@baec18679698d2f80064cc04eb9ad0c8dc5ca8f8
-        env:
-          ENSUREPIP: no
+      - name: Install Python Build Deps
+        if: matrix.os == 'ubuntu-24.04'
+        run: |
+          sudo apt update
+          DEBIAN_FRONTEND=noninteractive sudo apt install -y \
+            build-essential \
+            curl \
+            git \
+            libbz2-dev \
+            libffi-dev \
+            liblzma-dev \
+            libncursesw5-dev \
+            libreadline-dev \
+            libsqlite3-dev \
+            libssl-dev \
+            libxml2-dev \
+            libxmlsec1-dev \
+            libzstd-dev \
+            make \
+            tk-dev \
+            xz-utils \
+            zlib1g-dev
+      - name: Install Pyenv
+        run: |
+          cd "${RUNNER_TOOL_CACHE}"
+          git clone https://github.com/pyenv/pyenv
+          (
+            cd pyenv
+            src/configure
+            make -C src
+          )
+          export PYENV_ROOT="$PWD/pyenv"
+          echo "PYENV_ROOT=${PYENV_ROOT}" >> "${GITHUB_ENV}"
+          echo "${PYENV_ROOT}/bin" >> "${GITHUB_PATH}"
+      - name: Setup Python ${{ join(matrix.python-version, '.') }}
+        run: |
+          pyenv install ${{ join(matrix.python-version, '.') }}
+          echo "${PYENV_ROOT}/versions/${{ join(matrix.python-version, '.') }}/bin" >> "${GITHUB_PATH}"
+      - name: Setup Tox Python
+        uses: actions/setup-python@v7.0.0
         with:
-          default: "${{ join(matrix.python-version, '.') }}"
-          command: pip install -U tox
+          python-version: 3.11
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
-        run: tox -e package
+        run: |
+          python3.11 -V
+          python3.11 -mpip install -U pip
+          python3.11 -mpip install -U tox
+          python3.11 -mtox -e package
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -75,15 +112,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-13, windows-2025]
-        python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14], [3, 15, "0-alpha.1"]]
+        os: [ubuntu-24.04, macos-15, windows-2025]
+        python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14], [3, 15]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
           python-version: "${{ join(matrix.python-version, '.') }}"
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
@@ -100,7 +137,7 @@ jobs:
     name: Publish sdist and wheel to PyPI
     needs:
       - determine-tag
-      - package-36-38-dists
+      - package-36-38-and-316-dists
       - package-39-315-dists
     runs-on: ubuntu-24.04
     environment: Release
