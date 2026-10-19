@@ -30,6 +30,7 @@ jobs:
       - name: Checkout p537
         uses: actions/checkout@v5
       - name: Install Python Build Requirements
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           sudo apt update
           DEBIAN_FRONTEND=noninteractive sudo apt install \
