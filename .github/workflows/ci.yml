@@ -18,14 +18,14 @@ jobs:
     steps:
       - name: Noop
         run: "true"
-  tests-36-37:
+  tests-36-38-and-316:
     name: (${{ matrix.os }}) Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }} Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-24.04, macos-13]
-        python-version: [[3, 6, 15], [3, 7, 17]]
+        os: [ubuntu-24.04, macos-15]
+        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18], [3, 16, "0-alpha.1"]]
     steps:
       - name: Checkout p537
         uses: actions/checkout@v5
@@ -40,8 +40,8 @@ jobs:
           command: pip install -U tox
       - name: Run Unit Tests
         run: tox -e py${{ matrix.python-version[0] }}${{ matrix.python-version[1] }}
-  tests-38-316:
-    name: (${{ matrix.os }}) Python 3.8 - 3.16 Tests
+  tests-39-315:
+    name: (${{ matrix.os }}) Python 3.9 - 3.15 Tests
     needs: org-check
     runs-on: ${{ matrix.os }}
     strategy:
@@ -50,35 +50,43 @@ jobs:
     steps:
       - name: Checkout p537
         uses: actions/checkout@v5
-      - name: Setup uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v6
         with:
-          version: "0.13.1"
-      - name: Setup Pythons
-        shell: bash
-        run: |
-          export UV_PYTHON_INSTALL_DIR="${PWD}/uv-pythons"
-          uv python install --managed-python --force 3.{8..16}
-          uv python list \
-            --only-installed \
-            --managed-python \
-            --output-format json 2>/dev/null | \
-              jq -r '.[] | .path' | \
-              grep uv-pythons | \
-              xargs dirname | while read entry; do
-                echo "$(realpath "${entry}")" >> "${GITHUB_PATH}"
-              done
+          python-version: "3.9"
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.10"
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Setup Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Setup Python 3.14
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - name: Setup Python 3.15
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.15"
       - name: Run Unit Tests
         uses: pex-tool/actions/run-tox@7d8530c74d2e3ca4640d1ed9192b6e2b8c4f5f7b
-        env:
-          PIP_BREAK_SYSTEM_PACKAGES: true
         with:
-          tox-env: py38,py39,py310,py311,py312,py313,py314,py315,py316
+          tox-env: py39,py310,py311,py312,py313,py314,py315
   final-status:
     name: Gather Final Status
     needs:
-      - tests-36-37
-      - tests-38-316
+      - tests-36-38-and-316
+      - tests-39-315
     runs-on: ubuntu-24.04
     steps:
       - name: Check Non-Success
