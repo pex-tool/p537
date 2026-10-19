@@ -93,7 +93,7 @@ jobs:
             --output-format json \
             ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }} 2>/dev/null | \
               jq -r '.[] | .path' | \
-              grep uv-pythons/ | \
+              grep uv-pythons | \
               xargs dirname | while read entry; do
                 echo "$(realpath "${entry}")" >> "${GITHUB_PATH}"
               done
