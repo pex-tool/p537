@@ -90,16 +90,13 @@ jobs:
         run: |
           pyenv install ${{ join(matrix.python-version, '.') }}
           echo "${PYENV_ROOT}/versions/${{ join(matrix.python-version, '.') }}/bin" >> "${GITHUB_PATH}"
-      - name: Setup Tox Python
-        uses: actions/setup-python@v7.0.0
-        with:
-          python-version: 3.11
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
         run: |
-          python3.11 -V
-          python3.11 -mpip install -U pip
-          python3.11 -mpip install -U tox
-          python3.11 -mtox -e package
+          alias python='python${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}'
+          python -V
+          python -mpip install -U pip
+          python -mpip install -U tox
+          python -mtox -e package
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
