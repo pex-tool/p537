@@ -39,14 +39,14 @@ jobs:
             echo "::error::Release tag '${RELEASE_TAG}' must match 'v\d+.\d+.\d+'."
             exit 1
           fi
-  package-36-38-dists:
+  package-36-37-dists:
     name: ${{ matrix.os }} Package for Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, macos-13]
-        python-version: [[3, 6, 15], [3, 7, 17], [3, 8, 18]]
+        python-version: [[3, 6, 15], [3, 7, 17]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v5
@@ -69,23 +69,34 @@ jobs:
           name: "${{ matrix.os }}-${{ needs.determine-tag.outputs.release-tag }}-${{ join(matrix.python-version, '.') }}-distributions"
           path: dist/
           retention-days: 1
-  package-39-315-dists:
+  package-38-316-dists:
     name: ${{ matrix.os }} Package for Python ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
     needs: determine-tag
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-24.04, macos-13, windows-2025]
-        python-version: [[3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14], [3, 15, "0-alpha.1"]]
+        python-version: [[3, 8], [3, 9], [3, 10], [3, 11], [3, 12], [3, 13], [3, 14], [3, 15], [3, 16]]
     steps:
       - name: Checkout p537 ${{ needs.determine-tag.outputs.release-tag }}
         uses: actions/checkout@v5
         with:
           ref: ${{ needs.determine-tag.outputs.release-tag }}
       - name: Setup Python ${{ join(matrix.python-version, '.') }}
-        uses: actions/setup-python@v6
-        with:
-          python-version: "${{ join(matrix.python-version, '.') }}"
+        shell: bash
+        run: |
+          export UV_PYTHON_INSTALL_DIR="${PWD}/uv-pythons"
+          uv python install --managed-python --force ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }}
+          uv python list \
+            --only-installed \
+            --managed-python \
+            --output-format json \
+            ${{ matrix.python-version[0] }}.${{ matrix.python-version[1] }} 2>/dev/null | \
+              jq -r '.[] | .path' | \
+              grep uv-pythons/ | \
+              xargs dirname | whil read entry; do
+                echo "$(realpath "${entry}")" >> "${GITHUB_PATH}"
+              done
       - name: Package ${{ needs.determine-tag.outputs.release-tag }}
         uses: pex-tool/actions/run-tox@7d8530c74d2e3ca4640d1ed9192b6e2b8c4f5f7b
         with:
@@ -100,8 +111,8 @@ jobs:
     name: Publish sdist and wheel to PyPI
     needs:
       - determine-tag
-      - package-36-38-dists
-      - package-39-315-dists
+      - package-36-37-dists
+      - package-38-316-dists
     runs-on: ubuntu-24.04
     environment: Release
     permissions:
