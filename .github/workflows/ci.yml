@@ -29,6 +29,29 @@ jobs:
     steps:
       - name: Checkout p537
         uses: actions/checkout@v5
+      - name: Install Python Build Requirements
+        run: |
+          apt update
+          DEBIAN_FRONTEND=noninteractive apt install \
+            --yes \
+            --no-install-recommends \
+                build-essential \
+                curl \
+                git \
+                libbz2-dev \
+                libffi-dev \
+                liblzma-dev \
+                libncursesw5-dev \
+                libreadline-dev \
+                libsqlite3-dev \
+                libssl-dev \
+                libxml2-dev \
+                libxmlsec1-dev \
+                libzstd-dev \
+                make \
+                tk-dev \
+                xz-utils \
+                zlib1g-dev
       - name: "Setup Python ${{ join(matrix.python-version, '.') }}"
         # Upgrades pyenv to 2.8.10 to pick up 3.16.0a1.
         uses: pex-tool/pyenv-action@dcccfcc2bb18b008eca1ee92bbb05425e7126ead
